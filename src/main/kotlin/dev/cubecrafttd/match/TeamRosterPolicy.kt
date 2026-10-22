@@ -17,8 +17,9 @@ object TeamRosterPolicy {
         return names
     }
 
-    fun validate(red: Set<UUID>, blue: Set<UUID>) {
-        require(red.size in 1..MAX_TEAM_PLAYERS && blue.size in 1..MAX_TEAM_PLAYERS)
+    fun validate(red: Set<UUID>, blue: Set<UUID>, freeplay: Boolean = false) {
+        require(red.size in 1..MAX_TEAM_PLAYERS &&
+            (if (freeplay) blue.isEmpty() else blue.size in 1..MAX_TEAM_PLAYERS))
         require(red.intersect(blue).isEmpty()) { "A player cannot be on both teams" }
     }
 }

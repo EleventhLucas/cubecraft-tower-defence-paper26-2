@@ -231,6 +231,12 @@ class BukkitNormalArenaController(
                     .isEmpty()
             }
 
+    fun startFreeplay(player: UUID): ArenaId = startTeamInternal(
+        "freeplay-${player}", setOf(player), emptySet(), ArmageddonType.WITHER,
+        resolvedSelection=null, allowLiveArmageddonVoting=false,
+        pricingMode=PricingMode.NORMAL, freeplay=true
+    )
+
     fun startOneVsOneTest(
         arenaIdText: String,
         redPlayer: UUID,
@@ -315,9 +321,10 @@ class BukkitNormalArenaController(
             PricingMode,
         playerSettingsOverrides:
             Map<UUID,PlayerMatchSettings> =
-            emptyMap()
+            emptyMap(),
+        freeplay: Boolean = false
     ): ArenaId {
-        TeamRosterPolicy.validate(redPlayers, bluePlayers)
+        TeamRosterPolicy.validate(redPlayers, bluePlayers, freeplay)
         // Validate every supplied model before any player capture or world mutation.
         val towerBodies = BukkitTowerBodyCatalogLoader.load(plugin)
         val allPlayers=
@@ -357,7 +364,7 @@ class BukkitNormalArenaController(
                     armageddonType,
                     fallback
                 )
-        check(armageddonMissing.isEmpty()) {
+        check(freeplay || armageddonMissing.isEmpty()) {
             "Selected Armageddon $armageddonType is incomplete: " +
                 armageddonMissing.joinToString {
                     it.key
@@ -391,6 +398,11 @@ class BukkitNormalArenaController(
             world.uid,
             preflight.mapRuntime
         )
+        if (freeplay) {
+            TeamId.entries.forEach { team ->
+                context.castles[team] = dev.cubecrafttd.castle.CastleRuntime(team, invulnerable=true)
+            }
+        }
         val departedPlayers=
             linkedSetOf<UUID>()
         val ledger=EconomyLedger()
@@ -422,7 +434,8 @@ class BukkitNormalArenaController(
                 SentMobExpRewardService(
                     RecommendedMatureMobDefinitions,
                     ledger,
-                    pricingMode
+                    pricingMode,
+                    freeplay=freeplay
                 )
             )
         val deathFinalizer=
@@ -618,7 +631,8 @@ class BukkitNormalArenaController(
                 tiePolicy=
                     TimeoutTiePolicy.DRAW,
                 armageddonPort=
-                    armageddonRuntime
+                    armageddonRuntime,
+                freeplay=freeplay
             )
 
         val handle=
@@ -693,7 +707,7 @@ class BukkitNormalArenaController(
                 )
 
             val preset=
-                MatchRulePreset(
+                if (freeplay) FreeplayRules.preset() else MatchRulePreset(
                     mode=
                         when(pricingMode) {
                             PricingMode.NORMAL ->
@@ -775,6 +789,8 @@ class BukkitNormalArenaController(
                 .players
                 .values
                 .forEach { state ->
+                    if (freeplay) state.bazaar.unlockedAoE.addAll(
+                        RecommendedMatureBazaarDefinitions.aoePotions.map { it.potionId })
                     hotbarPreferences
                         .load(
                             state.playerUuid
@@ -1248,10 +1264,7 @@ class BukkitNormalArenaController(
                             )
                     }
                 val attackedTeam=
-                    if(team==TeamId.RED)
-                        TeamId.BLUE
-                    else
-                        TeamId.RED
+                    FreeplayRules.attackedTeam(team, session.preset.mode == MatchMode.FREEPLAY)
                 val availability=
                     SummonerSendAvailabilityEvaluator
                         .evaluate(
@@ -1273,7 +1286,8 @@ class BukkitNormalArenaController(
                                 handle.sendCooldowns,
                             gameTick=
                                 handle.context
-                                    .gameTick
+                                    .gameTick,
+                            freeplay=session.preset.mode == MatchMode.FREEPLAY
                         )
                 DynamicMatchMenus
                     .summoner(
@@ -2482,7 +2496,7 @@ class BukkitNormalArenaController(
                     report.outcome as?
                         MatchOutcome.Winner
                 )?.team
-            if(winnerTeam!=null) {
+            if(winnerTeam!=null && handle.session?.preset?.mode != MatchMode.FREEPLAY) {
                 activeTeamByPlayer
                     .filterValues {
                         it==winnerTeam
@@ -2517,7 +2531,7 @@ class BukkitNormalArenaController(
                     report.teardown
                 )
 
-            stage4Gate
+            if (handle.session?.preset?.mode != MatchMode.FREEPLAY) stage4Gate
                 .recordArenaRoundTrip(
                     report.teardown
                 )

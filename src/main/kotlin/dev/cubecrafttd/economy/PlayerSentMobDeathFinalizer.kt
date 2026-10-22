@@ -18,10 +18,7 @@ class PlayerSentMobDeathFinalizer(
         context: ArenaContext,
         mob: MobRuntimeState
     ) {
-        val attackingTeam=
-            opposite(
-                mob.identity.attackedTeam
-            )
+        val attackingTeam=reward.senderTeam(mob.identity.attackedTeam)
         val sender=
             mob.identity.senderPlayerUuid
 
@@ -43,11 +40,4 @@ class PlayerSentMobDeathFinalizer(
         )
     }
 
-    private fun opposite(
-        team: TeamId
-    ): TeamId =
-        when(team) {
-            TeamId.RED -> TeamId.BLUE
-            TeamId.BLUE -> TeamId.RED
-        }
 }

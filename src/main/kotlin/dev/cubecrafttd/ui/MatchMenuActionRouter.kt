@@ -253,7 +253,7 @@ class MatchMenuActionRouter(
                 val queue=
                     runtime.queues
                         .getValue(
-                            opposite(team)
+                            FreeplayRules.attackedTeam(team, session.preset.mode == MatchMode.FREEPLAY)
                         )
                 MatchMenuActionResult
                     .SummonerDraftChanged(
@@ -311,7 +311,7 @@ class MatchMenuActionRouter(
                         queue=
                             runtime.queues
                                 .getValue(
-                                    opposite(team)
+                                    FreeplayRules.attackedTeam(team, session.preset.mode == MatchMode.FREEPLAY)
                                 ),
                         command=
                             TroopBatchSendCommand(
@@ -326,7 +326,9 @@ class MatchMenuActionRouter(
                                     )
                             ),
                         gameTick=
-                            context.gameTick
+                            context.gameTick,
+                        cooldownTicks=if (session.preset.mode == MatchMode.FREEPLAY) 0L else NormalModeConstants.SEND_COOLDOWN_TICKS,
+                        freeplay=session.preset.mode == MatchMode.FREEPLAY
                     )
 
                 draft.clear()
@@ -765,10 +767,4 @@ class MatchMenuActionRouter(
                 )
         }
 
-    private fun opposite(
-        team: TeamId
-    ): TeamId =
-        if(team==TeamId.RED)
-            TeamId.BLUE
-        else TeamId.RED
 }

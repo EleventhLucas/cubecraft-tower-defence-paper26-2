@@ -49,7 +49,8 @@ class TroopBatchSendService(
         gameTick: Long,
         cooldownTicks: Long =
             NormalModeConstants
-                .SEND_COOLDOWN_TICKS
+                .SEND_COOLDOWN_TICKS,
+        freeplay: Boolean = false
     ): TroopBatchSendReceipt {
         check(command.selections.isNotEmpty()) {
             "Summoner draft is empty"
@@ -64,7 +65,7 @@ class TroopBatchSendService(
         }
 
         val attackedTeam=
-            opposite(command.senderTeam)
+            dev.cubecrafttd.match.FreeplayRules.attackedTeam(command.senderTeam, freeplay)
         check(
             queue.attackedTeam==
                 attackedTeam
@@ -237,11 +238,4 @@ class TroopBatchSendService(
         )
     }
 
-    private fun opposite(
-        team: TeamId
-    ): TeamId =
-        when(team) {
-            TeamId.RED -> TeamId.BLUE
-            TeamId.BLUE -> TeamId.RED
-        }
 }

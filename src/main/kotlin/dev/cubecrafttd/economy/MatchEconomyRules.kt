@@ -1,5 +1,7 @@
 package dev.cubecrafttd.economy
 
+import dev.cubecrafttd.arena.TeamId
+
 import dev.cubecrafttd.mob.MobDefinitionRepository
 import dev.cubecrafttd.mob.MobRuntimeState
 import java.util.UUID
@@ -47,8 +49,12 @@ class DeterministicCooldownTracker {
 class SentMobExpRewardService(
     private val definitions: MobDefinitionRepository,
     private val ledger: EconomyLedger,
-    private val pricingMode: PricingMode
+    private val pricingMode: PricingMode,
+    private val freeplay: Boolean = false
 ) {
+    fun senderTeam(attackedTeam: TeamId): TeamId =
+        if (freeplay) attackedTeam else opposite(attackedTeam)
+
     fun onSentMobDeath(mob: MobRuntimeState, arenaTick: Long): Long {
         val def = definitions.get(mob.identity.mobId).level(mob.identity.level)
         val multiplier = if (pricingMode == PricingMode.DOUBLE_INCOME) 2L else 1L
@@ -60,7 +66,7 @@ class SentMobExpRewardService(
                 transactionId = mob.identity.instanceId.value xor arenaTick,
                 arenaTick = arenaTick,
                 account = EconomyAccount(
-                    team = opposite(mob.identity.attackedTeam),
+                    team = senderTeam(mob.identity.attackedTeam),
                     playerUuid = sender,
                     currency = EconomyCurrency.MATCH_EXP
                 ),

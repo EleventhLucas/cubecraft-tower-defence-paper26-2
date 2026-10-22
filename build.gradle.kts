@@ -42,6 +42,10 @@ val generateReconstructionAssets by tasks.registering(Exec::class) {
 }
 
 tasks {
+    jar {
+        archiveClassifier.set("plain")
+    }
+
     test {
         useJUnitPlatform()
         testLogging {
@@ -73,4 +77,10 @@ tasks {
             expand(props)
         }
     }
+}
+
+tasks.register<Copy>("stageLocalPlugin") {
+    from(tasks.shadowJar)
+    into(layout.buildDirectory.dir("local-playtest"))
+    rename { "CubeCraftTowerDefence.jar" }
 }

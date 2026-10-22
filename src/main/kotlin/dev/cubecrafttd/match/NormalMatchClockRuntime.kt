@@ -29,7 +29,8 @@ class NormalMatchClockRuntime(
     tiePolicy: TimeoutTiePolicy,
     armageddonPort: ArmageddonStartPort,
     timing: NormalMatchTiming =
-        NormalMatchTiming()
+        NormalMatchTiming(),
+    private val freeplay: Boolean = false
 ) {
     private val startTick=startGameTick
     private var selected=selection
@@ -59,6 +60,7 @@ class NormalMatchClockRuntime(
         ) {
             "Arena gameTick moved before match start"
         }
+        if (freeplay) return NormalMatchTickReport(MatchPhase.PRE_ARMAGEDDON)
         return orchestrator.tick(
             context=context,
             elapsedTicks=

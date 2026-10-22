@@ -1,0 +1,13 @@
+{
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "name": "Launch CubeCraft TD (Minecraft 26.2)",
+      "type": "node-terminal",
+      "request": "launch",
+      "command": "bash ./dev-server/start.sh",
+      "cwd": "${workspaceFolder}",
+      "preLaunchTask": "CubeCraft TD: prepare local server"
+    }
+  ]
+}

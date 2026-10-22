@@ -1,6 +1,8 @@
 .gradle/
 build/
 out/
+# VS Code/Eclipse-generated source and resource copies
+/bin/
 .idea/
 *.iml
 .DS_Store
@@ -8,6 +10,7 @@ __pycache__/
 Thumbs.db
 *.log
 *.jar
+!gradle/wrapper/gradle-wrapper.jar
 run/
 server/
 plugins/

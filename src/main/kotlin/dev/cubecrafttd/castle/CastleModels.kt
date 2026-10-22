@@ -13,7 +13,8 @@ data class CastleRuntime(
     val team: TeamId,
     val maxHealth: Double = RECOMMENDED_MATURE_CASTLE_START_HP,
     var health: Double = maxHealth,
-    var state: CastleState = CastleState.ACTIVE
+    var state: CastleState = CastleState.ACTIVE,
+    val invulnerable: Boolean = false
 ) {
     init {
         require(maxHealth > 0)
@@ -22,6 +23,7 @@ data class CastleRuntime(
 
     fun damage(amount: Double): Double {
         require(amount >= 0.0)
+        if (invulnerable) return health
         if (state == CastleState.DESTROYED) return health
         health = (health - amount).coerceAtLeast(0.0)
         if (health <= 0.0) state = CastleState.DESTROYED

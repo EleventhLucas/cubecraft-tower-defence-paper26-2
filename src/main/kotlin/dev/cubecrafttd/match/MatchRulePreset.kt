@@ -7,7 +7,8 @@ import dev.cubecrafttd.truth.ResolvedTruth
 enum class MatchMode {
     NORMAL,
     DOUBLE_INCOME,
-    QUICK_START
+    QUICK_START,
+    FREEPLAY
 }
 
 data class MatchRulePreset(
@@ -39,8 +40,9 @@ object MatchRulePresetFactory {
             ProgressionMode =
             ProgressionMode.CLASSIC_PROGRESSION
     ): MatchRulePreset {
+        if (mode == MatchMode.FREEPLAY) return FreeplayRules.preset()
         val pricing=when(mode) {
-            MatchMode.NORMAL ->
+            MatchMode.NORMAL, MatchMode.FREEPLAY ->
                 PricingMode.NORMAL
             MatchMode.DOUBLE_INCOME ->
                 PricingMode.DOUBLE_INCOME

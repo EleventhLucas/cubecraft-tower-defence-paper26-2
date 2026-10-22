@@ -34,13 +34,11 @@ object SummonerSendAvailabilityEvaluator {
         gameTick: Long,
         definitions:
             MobDefinitionRepository =
-            RecommendedMatureMobDefinitions
+            RecommendedMatureMobDefinitions,
+        freeplay: Boolean = false
     ): SummonerSendAvailability {
         val attackedTeam=
-            if(senderTeam==TeamId.RED)
-                TeamId.BLUE
-            else
-                TeamId.RED
+            dev.cubecrafttd.match.FreeplayRules.attackedTeam(senderTeam, freeplay)
         check(
             queue.attackedTeam==
                 attackedTeam

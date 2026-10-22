@@ -687,6 +687,26 @@ class CubeCraftTowerDefencePlugin : JavaPlugin() {
         label: String,
         args: Array<out String>
     ): Boolean = when (command.name.lowercase()) {
+        "ctdfreeplay" -> {
+            runCatching {
+                require(args.isEmpty()) { "Usage: /ctdfreeplay" }
+                val player = sender as? org.bukkit.entity.Player
+                    ?: error("Freeplay requires an in-game player")
+                check(!mapOperations.hasActivePaste()) {
+                    "Farm is being repaired or built. Wait for the completion message, then run /ctdfreeplay again."
+                }
+                check(teamQueue.queuedPlayerCount() == 0 && liveArenaController.activeArenaIds().isEmpty()) {
+                    "Leave the queue and finish the current match before starting Freeplay"
+                }
+                val blockers = readinessService.inspect().blockers.filterNot {
+                    it.code == "PAPER_LIVE_GATE_NOT_CERTIFIED"
+                }
+                check(blockers.isEmpty()) { blockers.joinToString { "${it.code}: ${it.detail}" } }
+                liveArenaController.startFreeplay(player.uniqueId)
+                player.sendMessage("§dFreeplay started! §6Build on Red's side; your Summoner sends enemies to your own lane. All troop levels and potions are unlocked, with 100 million coins and EXP. No send cooldown, automatic Armageddon or match deadline. /ctdleave to finish.")
+            }.onFailure { sender.sendMessage("Freeplay ERROR: ${it.message}") }
+            true
+        }
         "ctdjoin" -> {
             runPlayerQueueJoin(
                 sender,args.toList()
@@ -1925,24 +1945,21 @@ class CubeCraftTowerDefencePlugin : JavaPlugin() {
         liveArenaController
             .beginFarmVerifiedReset()
 
+        var resetProgressPhase = ""
+        var resetProgressBucket = -1
         try {
             mapOperations
                 .startVerifiedReset(
                     onProgress={ progress ->
-                        if(
-                            progress.phase=="COMPLETE" ||
-                            progress.phase=="FAILED"
-                        ) {
-                            logger.info(
-                                "Farm verified reset " +
-                                    progress.phase +
-                                    ": scanned=" +
-                                    progress.scannedBlocks +
-                                    " written=" +
-                                    progress.writtenBlocks +
-                                    "/" +
-                                    progress.totalBlocks
-                            )
+                        val bucket = (progress.percentage ?: 0) / 10
+                        if (progress.phase != resetProgressPhase || bucket != resetProgressBucket) {
+                            resetProgressPhase = progress.phase
+                            resetProgressBucket = bucket
+                            val message = "Farm verified reset ${progress.phase}: " +
+                                (progress.percentage?.let { "$it% — " } ?: "") +
+                                "scanned=${progress.scannedBlocks} changed=${progress.writtenBlocks}"
+                            logger.info(message)
+                            if (sender is org.bukkit.entity.Player && sender.isOnline) sender.sendMessage("§6$message")
                         }
                     },
                     onComplete={

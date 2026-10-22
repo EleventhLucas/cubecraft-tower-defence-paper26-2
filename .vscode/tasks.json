@@ -1,0 +1,22 @@
+{
+  "version": "2.0.0",
+  "tasks": [
+    {
+      "label": "CubeCraft TD: prepare local server",
+      "type": "process",
+      "command": "bash",
+      "args": ["${workspaceFolder}/dev-server/prepare.sh"],
+      "options": {"cwd": "${workspaceFolder}"},
+      "problemMatcher": []
+    },
+    {
+      "label": "CubeCraft TD: test",
+      "type": "process",
+      "command": "bash",
+      "args": ["${workspaceFolder}/dev-server/gradle.sh", "test"],
+      "options": {"cwd": "${workspaceFolder}"},
+      "group": "test",
+      "problemMatcher": []
+    }
+  ]
+}

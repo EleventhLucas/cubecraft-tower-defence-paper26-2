@@ -1,0 +1,5 @@
+# Keep the standard Gradle launchers consistent across Linux and Windows.
+/gradlew text eol=lf
+/gradlew.bat text eol=crlf
+/gradle/wrapper/gradle-wrapper.properties text eol=lf
+/gradle/wrapper/gradle-wrapper.jar binary

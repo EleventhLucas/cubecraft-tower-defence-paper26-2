@@ -111,13 +111,13 @@ class BukkitMatchHudService(
                                 playerUuid
                             ) {
                                 server.createBossBar(
-                                    castleHud.title,
+                                    if (session.preset.mode == dev.cubecrafttd.match.MatchMode.FREEPLAY) "Freeplay — Castle protected" else castleHud.title,
                                     BarColor.GREEN,
                                     BarStyle.SOLID
                                 )
                             }
                     bar.setTitle(
-                        castleHud.title
+                        if (session.preset.mode == dev.cubecrafttd.match.MatchMode.FREEPLAY) "Freeplay — Castle protected" else castleHud.title
                     )
                     bar.setProgress(
                         castleHud.progress

@@ -135,7 +135,8 @@ class BukkitVerifiedSchematicResetService(
                     phase=phase.name,
                     scannedBlocks=scanned,
                     writtenBlocks=written,
-                    totalBlocks=total
+                    totalBlocks=total,
+                    processedBlocks=cursor
                 )
             )
         }

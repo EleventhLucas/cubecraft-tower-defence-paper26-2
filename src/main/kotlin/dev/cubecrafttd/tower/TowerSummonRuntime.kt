@@ -113,13 +113,7 @@ object RecommendedTowerSummonCountResolver {
             towerId,stage ->
             when(towerId) {
                 "necromancer" -> 1
-                "zeus" -> {
-                    check(
-                        "baby_zeus" in
-                            stage.abilityTags
-                    )
-                    1
-                }
+                "zeus" -> if ("baby_zeus" in stage.abilityTags) 1 else 0
                 "sorcerer" -> {
                     if(
                         "kamikaze" in

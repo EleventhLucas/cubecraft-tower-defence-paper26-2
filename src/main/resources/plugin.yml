@@ -5,6 +5,10 @@ description: High-fidelity CubeCraft Tower Defence recreation runtime
 api-version: '26.2'
 load: POSTWORLD
 commands:
+  ctdfreeplay:
+    description: Start a solo testing sandbox with self-directed troops and unlocked progression
+    usage: /ctdfreeplay
+    permission: cubecrafttd.admin
   ctdinstall:
     description: Install the Farm add-on into its own managed world on an existing server
     usage: /ctdinstall <create [teamSize]|configure [teamSize]|status|build|visit>

@@ -135,7 +135,7 @@ Kotlin JVM target: 25
 Paper API: io.papermc.paper:paper-api:26.2.build.+
 ```
 
-Because this source snapshot does not currently include a complete Gradle Wrapper distribution, CI installs a pinned Gradle version explicitly.
+The local Gradle Wrapper uses Gradle 9.7.1. CI installs its pinned Gradle version explicitly.
 
 ### GitHub Actions
 
@@ -153,6 +153,17 @@ artifact upload
 The generated plugin JAR appears in the workflow run under **Artifacts**.
 
 ### Local build
+
+Local testing extension: operators can use `/ctdfreeplay` to start a solo sandbox
+on the prepared Farm. It provides 100 million coins and EXP, all troop levels
+and potion unlocks, protected castles, and no automatic Armageddon or time limit.
+Build on Red's side; the Summoner sends troops down your own lane without a send
+cooldown. Use `/ctdleave` to end the session and restore your previous player
+state. Farm must be idle, with no queued players or active match.
+
+For a local VS Code server, use **Launch CubeCraft TD (Minecraft 26.2)**.
+See [the local launch instructions](dev-server/README.md) for first-run setup,
+the client version, and the 1v1 queue. A Gradle 9.7.1 wrapper is now included.
 
 With Java 25 and Gradle 9.1+ installed:
 

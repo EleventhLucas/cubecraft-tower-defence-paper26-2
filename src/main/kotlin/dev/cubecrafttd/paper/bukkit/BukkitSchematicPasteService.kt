@@ -20,6 +20,8 @@ data class SchematicPasteProgress(
 ) {
     val percentage: Int? get() = when (phase) {
         "PREFLIGHT" -> (scannedBlocks.toLong() * 50 / totalBlocks).toInt()
+        "SCAN" -> (scannedBlocks.toLong() * 50 / totalBlocks).toInt()
+        "VERIFY" -> 50 + (processedBlocks.toLong() * 50 / totalBlocks).toInt()
         "PASTE" -> 50 + (processedBlocks.toLong() * 50 / totalBlocks).toInt()
         "COMPLETE" -> 100
         else -> null
